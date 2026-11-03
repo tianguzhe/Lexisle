@@ -1,0 +1,7 @@
+// Local-first build. No Apple Developer account is needed for simulator use.
+#include "Brand.xcconfig"
+WORD_ATLAS_CLOUD_ENABLED = NO
+WORD_ATLAS_CLOUD_CONTAINER = iCloud.com.eenglish.wordatlas
+WORD_ATLAS_BUNDLE_PREFIX = com.eenglish.wordatlas
+CODE_SIGN_STYLE = Automatic
+DEVELOPMENT_TEAM =

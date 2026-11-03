@@ -1,0 +1,7 @@
+// Copy Developer.example.xcconfig to Developer.xcconfig and set your identifiers.
+#include "Brand.xcconfig"
+WORD_ATLAS_CLOUD_ENABLED = YES
+WORD_ATLAS_CLOUD_CONTAINER = iCloud.com.eenglish.wordatlas
+WORD_ATLAS_BUNDLE_PREFIX = com.eenglish.wordatlas
+CODE_SIGN_STYLE = Automatic
+#include? "Developer.xcconfig"

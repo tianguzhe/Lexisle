@@ -1,0 +1,4 @@
+// Product identity shared by the app bundle and runtime brand text.
+APP_DISPLAY_NAME = 词屿
+APP_ENGLISH_NAME = Lexisle
+APP_TAGLINE = 从一个词，抵达新世界。

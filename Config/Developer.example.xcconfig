@@ -1,0 +1,4 @@
+// This file is a template; Developer.xcconfig is ignored by Git.
+DEVELOPMENT_TEAM = YOUR_TEAM_ID
+WORD_ATLAS_BUNDLE_PREFIX = com.yourcompany.wordatlas
+WORD_ATLAS_CLOUD_CONTAINER = iCloud.com.yourcompany.wordatlas
