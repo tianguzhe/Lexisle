@@ -2,8 +2,6 @@
 
 **从一个词，抵达新世界。** [品牌图形与使用说明](Documentation/Brand/README.md)
 
-**从一个词，抵达新世界。**
-
 面向中文用户的原生英语学习 App。完整内置 7,298 个词条和 14,596 条例句，提供插画图鉴、英美发音、每日学习、FSRS-6 间隔复习、收藏和学习统计。
 
 支持 iOS/iPadOS 26+ 与原生 macOS 26+。界面使用 SwiftUI，用户数据使用 SwiftData，云端同步使用 CloudKit 私有数据库。所有文字内容首次断网也能访问；图片和录音从指定 CDN 按需下载。
@@ -59,6 +57,19 @@ xcodebuild -project WordAtlas.xcodeproj -scheme WordAtlas-UI-Tests \
 工程包含两套原生 App target、对应宿主单元测试 target、独立 iOS UI 测试 target，以及 `Debug`、`Release`、`CloudDebug`、`CloudRelease` 四个配置。共享 scheme 为 `WordAtlas-iOS`、`WordAtlas-macOS`、对应的 `-Cloud` scheme 和 `WordAtlas-UI-Tests`。UI 测试结果保留今日、搜索、详情与学习页面截图。
 
 UI 测试请通过 Xcode 的 Product → Test 或上述 `WordAtlas-UI-Tests` scheme 启动。不要直接运行 `WordAtlasUITests-Runner.app` 或用 `simctl launch` 启动 runner：它依赖 Xcode 注入的 XCTest 框架路径与测试会话配置。首次测试曾遇到短暂的 runner 注册失败；通过正常 Xcode 测试流程重试后已完整通过。
+
+## 打包 DMG 和未签名 IPA
+
+```sh
+bash Scripts/package.sh all
+# 或：bash Scripts/package.sh dmg / bash Scripts/package.sh ipa
+```
+
+产物与 SHA-256 校验和位于 `dist/`。DMG 包含 Apple Silicon + Intel 通用 App 和拖拽安装界面；IPA 为未签名真机包，安装前需要自行签名。DMG 使用 ad-hoc 签名，未公证。
+
+GitHub Actions 的 **Build DMG and unsigned IPA** 支持手动构建并下载附件；推送 `v1.2.3` 这类版本标签会构建两种包并发布 Release。不需要配置签名密钥。
+
+[完整打包说明与 QuietLock 参考分析](Documentation/PACKAGING.md)
 
 ## 启用 iCloud
 

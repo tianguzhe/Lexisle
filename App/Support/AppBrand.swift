@@ -5,6 +5,7 @@ enum AppBrand {
     static let name = value(for: "CFBundleDisplayName", fallback: "词屿")
     static let englishName = value(for: "AppBrandEnglishName", fallback: "Lexisle")
     static let tagline = value(for: "AppBrandTagline", fallback: "从一个词，抵达新世界。")
+    static let version = value(for: "CFBundleShortVersionString", fallback: "1.0.0")
 
     static var displayName: String { "\(name) · \(englishName)" }
     static var wordmark: String { englishName.uppercased() }

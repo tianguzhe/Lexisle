@@ -54,7 +54,8 @@ struct SettingsView: View {
                     AtlasMark(size: 45)
                     VStack(alignment: .leading, spacing: 4) {
                         Text(AppBrand.displayName).font(.headline)
-                        Text("\(AppBrand.tagline)  1.0").font(.caption).foregroundStyle(AtlasTheme.secondary)
+                        Text("\(AppBrand.tagline)  \(AppBrand.version)").font(.caption).foregroundStyle(
+                            AtlasTheme.secondary)
                     }
                 }.padding(.vertical, 9)
                 Link("原项目与开放词库", destination: URL(string: "https://github.com/designfuchen/word-atlas")!)

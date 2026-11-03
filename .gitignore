@@ -7,6 +7,11 @@ xcuserdata/
 Config/Developer.xcconfig
 Vendor/swift-fsrs/.build/
 TestResults/
+/dist/
+*.dmg
+*.ipa
+*.xcarchive/
+*.dSYM/
 __pycache__/
 *.py[cod]
 .env
