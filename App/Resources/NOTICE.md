@@ -10,4 +10,6 @@ Original application code and design: Copyright (c) 2026 Word Atlas contributors
 
 Swift FSRS: Copyright (c) 2023 Ben Smiley, MIT License. Vendored from https://github.com/open-spaced-repetition/swift-fsrs at revision `4fbaf20184d62f82a9f44f343337c61a2c5483e9`. Full text is bundled as `FSRS_LICENSE.txt`.
 
-Source vocabulary, illustrations and recordings were generated using AI and automatically checked, but have not been manually reviewed entry by entry. Content may contain errors. This is not an official IELTS vocabulary list or an IELTS-affiliated application. No additional third-party fonts are bundled.
+Source vocabulary, illustrations and recordings were generated using AI and automatically checked, but have not been manually reviewed entry by entry. Content may contain errors. This is not an official IELTS vocabulary list or an IELTS-affiliated application.
+
+Lora: Copyright 2011 The Lora Project Authors (https://github.com/cyrealtype/Lora-Cyrillic), with Reserved Font Name "Lora". Unmodified Regular, SemiBold and Italic fonts are bundled under the SIL Open Font License 1.1. Source revision: `2d53b449b60e185b39f671b44fded83e0910ad30`. Full text is bundled as `LORA_LICENSE.txt`.

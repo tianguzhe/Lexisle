@@ -5,18 +5,18 @@ struct WordDetailView: View {
     @Environment(AppStore.self) private var store
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var audio = AudioService.shared
-    @ScaledMetric(relativeTo: .largeTitle) private var wordFont = 32
 
     var body: some View {
         GeometryReader { geometry in
             let compact = geometry.size.width < 600
             let inset: CGFloat = geometry.size.width < 400 ? 18 : 26
             let contentWidth = min(geometry.size.width, 760) - inset * 2
+            let usesSideArtwork = contentWidth >= 640 && dynamicTypeSize < .xxLarge
             ScrollView {
                 VStack(alignment: .leading, spacing: compact ? 24 : 30) {
-                    if !compact && !dynamicTypeSize.isAccessibilitySize {
+                    if usesSideArtwork {
                         HStack(alignment: .center, spacing: 24) {
-                            artwork.frame(width: 210, height: 210)
+                            artwork.frame(width: 190, height: 210)
                             identity.frame(maxWidth: .infinity, alignment: .leading)
                         }
                     } else {
@@ -32,7 +32,7 @@ struct WordDetailView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             Eyebrow(text: "词族 · WORD FAMILY")
                             Text(word.family.joined(separator: "   ·   "))
-                                .font(.subheadline).lineSpacing(5).textSelection(.enabled)
+                                .font(AtlasTypography.englishDetail).lineSpacing(5).textSelection(.enabled)
                         }
                     }
                     if !word.tip.isEmpty {
@@ -74,9 +74,11 @@ struct WordDetailView: View {
 
     private var identity: some View {
         VStack(alignment: .leading, spacing: 13) {
-            HStack(alignment: .top, spacing: 12) {
-                Text(word.word).font(.system(size: wordFont, weight: .medium, design: .serif))
-                    .fixedSize(horizontal: false, vertical: true).textSelection(.enabled)
+            HStack(spacing: 9) {
+                LevelBadge(level: word.cefr)
+                Text(store.cards[word.id]?.isMastered == true ? "已掌握" : store.cards[word.id] == nil ? "等待初见" : "正在生长")
+                    .font(.caption).foregroundStyle(AtlasTheme.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Button {
                     store.toggleFavorite(word.id)
@@ -88,11 +90,10 @@ struct WordDetailView: View {
                     .accessibilityLabel(store.favorites.contains(word.id) ? "取消收藏" : "收藏单词")
                     .accessibilityIdentifier("favoriteWord")
             }
-            HStack(spacing: 9) {
-                LevelBadge(level: word.cefr)
-                Text(store.cards[word.id]?.isMastered == true ? "已掌握" : store.cards[word.id] == nil ? "等待初见" : "正在生长")
-                    .font(.caption).foregroundStyle(AtlasTheme.secondary)
-            }
+            Text(word.word).font(AtlasTypography.wordTitle(size: 34))
+                .fixedSize(horizontal: false, vertical: true).textSelection(.enabled)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityAddTraits(.isHeader)
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: 8) {
                     pronunciation(.uk)
@@ -100,8 +101,8 @@ struct WordDetailView: View {
                 }
                 .fixedSize(horizontal: true, vertical: false)
                 VStack(alignment: .leading, spacing: 8) {
-                    pronunciation(.uk)
-                    pronunciation(.us)
+                    pronunciation(.uk, expanded: true)
+                    pronunciation(.us, expanded: true)
                 }
             }
             if audio.isPlaying || audio.isLoading {
@@ -122,7 +123,7 @@ struct WordDetailView: View {
                         .foregroundStyle(AtlasTheme.secondary).padding(.top, 5)
                     VStack(alignment: .leading, spacing: 7) {
                         Text("\(sense.pos)  \(sense.zh)").font(.body.weight(.medium))
-                        Text(sense.en).font(.system(.subheadline, design: .serif))
+                        Text(sense.en).font(AtlasTypography.englishDetail)
                             .foregroundStyle(AtlasTheme.secondary).lineSpacing(4)
                     }.fixedSize(horizontal: false, vertical: true).textSelection(.enabled)
                 }
@@ -150,7 +151,7 @@ struct WordDetailView: View {
                                 .frame(width: 44, height: 44).background(AtlasTheme.paper, in: Circle())
                         }.buttonStyle(.plain).accessibilityLabel("朗读第 \(index + 1) 条例句")
                     }
-                    Text(example.en).font(.system(.body, design: .serif)).lineSpacing(4)
+                    Text(example.en).font(AtlasTypography.englishBody).lineSpacing(4)
                         .fixedSize(horizontal: false, vertical: true).textSelection(.enabled)
                     Text(example.zh).font(.subheadline).foregroundStyle(AtlasTheme.secondary).lineSpacing(4)
                         .fixedSize(horizontal: false, vertical: true).textSelection(.enabled)
@@ -165,7 +166,7 @@ struct WordDetailView: View {
             ForEach(word.collocations, id: \.self) { item in
                 HStack(alignment: .firstTextBaseline, spacing: 9) {
                     Circle().fill(AtlasTheme.green.opacity(0.4)).frame(width: 4, height: 4)
-                    Text(item.replacingOccurrences(of: "｜", with: "  ·  "))
+                    collocationLabel(item)
                         .font(.subheadline).lineSpacing(4).textSelection(.enabled)
                         .fixedSize(horizontal: false, vertical: true)
                 }.padding(.vertical, 3)
@@ -173,16 +174,25 @@ struct WordDetailView: View {
         }
     }
 
-    private func pronunciation(_ accent: Accent) -> some View {
+    private func collocationLabel(_ item: String) -> Text {
+        guard let separator = item.range(of: "｜") else { return Text(item) }
+        let english = Text(String(item[..<separator.lowerBound])).font(AtlasTypography.englishDetail)
+        return Text("\(english)  ·  \(String(item[separator.upperBound...]))")
+    }
+
+    private func pronunciation(_ accent: Accent, expanded: Bool = false) -> some View {
         Button {
             Task { _ = await audio.play(word: word, kind: accent == .uk ? .uk : .us, accent: accent) }
         } label: {
             HStack(spacing: 7) {
                 Text(accent == .uk ? "UK" : "US").font(.system(.caption2, design: .monospaced, weight: .semibold))
-                Text(accent == .uk ? word.uk : word.us).font(.caption)
+                Text(accent == .uk ? word.uk : word.us).font(.subheadline)
                     .fixedSize(horizontal: false, vertical: true)
-                Image(systemName: "speaker.wave.2").font(.caption)
-            }.padding(.horizontal, 12).frame(minHeight: 44)
+                    .layoutPriority(1)
+                if expanded { Spacer(minLength: 4) }
+                Image(systemName: "speaker.wave.2").font(.caption).fixedSize()
+            }.padding(.horizontal, 12).padding(.vertical, 10)
+                .frame(maxWidth: expanded ? .infinity : nil, minHeight: 46, alignment: .leading)
                 .background(AtlasTheme.surface, in: RoundedRectangle(cornerRadius: 13))
                 .overlay(RoundedRectangle(cornerRadius: 13).stroke(AtlasTheme.line, lineWidth: 0.8))
         }.buttonStyle(.plain).foregroundStyle(AtlasTheme.green).accessibilityLabel("\(accent.title)发音，\(word.word)")

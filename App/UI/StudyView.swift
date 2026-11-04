@@ -6,12 +6,13 @@ struct StudyView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var audio = AudioService.shared
     @State private var started = Date()
     @State private var hinted = false
     @State private var audioUnavailable = false
     @FocusState private var spellingFocused: Bool
-    @ScaledMetric(relativeTo: .largeTitle) private var wordFont = 34
+    @AccessibilityFocusState private var feedbackFocused: Bool
 
     var body: some View {
         GeometryReader { geometry in
@@ -67,6 +68,7 @@ struct StudyView: View {
             Text(stepCountLabel)
                 .font(.caption.monospacedDigit()).foregroundStyle(AtlasTheme.secondary).fixedSize()
         }.padding(.horizontal, inset).padding(.top, 12).padding(.bottom, 8)
+            .frame(maxWidth: 620).frame(maxWidth: .infinity)
     }
 
     private var stepCountLabel: String {
@@ -79,26 +81,43 @@ struct StudyView: View {
         _ step: StudyStep, word: VocabularyEntry, size: CGSize,
         compact: Bool, inset: CGFloat
     ) -> some View {
-        ScrollView {
-            VStack(spacing: compact ? 18 : 24) {
-                HStack {
-                    Eyebrow(text: step.retry ? "再遇见一次 · 巩固练习" : step.kind.title)
-                    Spacer()
-                    LevelBadge(level: word.cefr)
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(spacing: compact ? 18 : 24) {
+                    HStack(alignment: .top, spacing: 12) {
+                        Eyebrow(text: step.retry ? "再遇见一次 · 巩固练习" : step.kind.title)
+                        Spacer(minLength: 0)
+                        LevelBadge(level: word.cefr)
+                    }.id("studyQuestion")
+                    question(step, word: word, compact: compact, width: size.width, height: size.height)
+                    if step.kind != .intro {
+                        if step.kind == .spell { spellingInput(word) } else { options(step, word: word) }
+                    }
+                    if let feedback = store.session?.pending {
+                        answerFeedback(feedback, word: word, retry: step.retry)
+                            .id("studyFeedback")
+                            .accessibilityFocused($feedbackFocused)
+                    }
+                }.padding(.horizontal, inset).padding(.top, 12).padding(.bottom, 20)
+                    .frame(maxWidth: 620).frame(maxWidth: .infinity)
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                if step.kind == .intro || store.session?.pending != nil {
+                    advanceButton(isIntroduction: step.kind == .intro, inset: inset)
                 }
-                question(step, word: word, compact: compact, width: size.width, height: size.height)
-                if step.kind != .intro {
-                    if step.kind == .spell { spellingInput(word) } else { options(step, word: word) }
+            }
+            .onChange(of: step.id) { _, _ in
+                proxy.scrollTo("studyQuestion", anchor: .top)
+            }
+            .onChange(of: store.session?.pending, initial: true) { _, feedback in
+                guard feedback != nil else {
+                    feedbackFocused = false
+                    return
                 }
-                if let feedback = store.session?.pending {
-                    answerFeedback(feedback, word: word, retry: step.retry)
+                withAnimation(reduceMotion ? nil : .easeOut(duration: 0.2)) {
+                    proxy.scrollTo("studyFeedback", anchor: dynamicTypeSize.isAccessibilitySize ? .top : .bottom)
                 }
-            }.padding(.horizontal, inset).padding(.top, 12).padding(.bottom, 20)
-                .frame(maxWidth: 620).frame(maxWidth: .infinity)
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if step.kind == .intro || store.session?.pending != nil {
-                advanceButton(isIntroduction: step.kind == .intro, inset: inset)
+                feedbackFocused = true
             }
         }
         .task(id: step.id) { await prepareStep(step, word: word) }
@@ -111,10 +130,11 @@ struct StudyView: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(feedback.correct ? "记住了，又向前一步。" : "没关系，再认识它一次。")
                     .font(.subheadline.weight(.semibold))
-                Text("\(word.word)  ·  \(word.meaning)").font(.subheadline)
+                Text("\(Text(word.word).font(AtlasTypography.wordCard))  ·  \(word.meaning)")
+                    .font(.subheadline).lineSpacing(3)
                 if retry { Text("巩固练习不重复计分").font(.caption) }
-            }
-            Spacer(minLength: 0)
+            }.fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }.foregroundStyle(feedback.correct ? AtlasTheme.green : AtlasTheme.clay)
             .padding(18).background(AtlasTheme.moss.opacity(0.5), in: RoundedRectangle(cornerRadius: 18))
             .accessibilityElement(children: .combine)
@@ -129,10 +149,10 @@ struct StudyView: View {
                 Text(isIntroduction ? "认识了，继续" : "继续")
                 Spacer()
                 Image(systemName: "arrow.right")
-            }.frame(maxWidth: 536)
+            }.frame(maxWidth: .infinity)
         }.buttonStyle(AtlasPrimaryButton()).keyboardShortcut(.return, modifiers: [])
             .padding(.horizontal, inset).padding(.vertical, 12)
-            .frame(maxWidth: .infinity).background(AtlasTheme.paper)
+            .frame(maxWidth: 620).frame(maxWidth: .infinity).background(AtlasTheme.paper)
             .overlay(alignment: .top) { Rectangle().fill(AtlasTheme.line).frame(height: 0.7) }
     }
 
@@ -195,7 +215,7 @@ struct StudyView: View {
                     Text("用英文写下这个单词").font(.subheadline).foregroundStyle(AtlasTheme.secondary)
                 } else {
                     Text(word.word).font(
-                        .system(size: compact ? wordFont : wordFont * 1.18, weight: .medium, design: .serif)
+                        AtlasTypography.wordTitle(size: compact ? 36 : 42)
                     )
                     .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
                     Button {
@@ -211,7 +231,7 @@ struct StudyView: View {
                             .fixedSize(horizontal: false, vertical: true)
                         if let example = word.examples.first {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text(example.en).font(.system(.body, design: .serif)).lineSpacing(3)
+                                Text(example.en).font(AtlasTypography.englishBody).lineSpacing(3)
                                 Text(example.zh).font(.subheadline).foregroundStyle(AtlasTheme.secondary).lineSpacing(3)
                             }.fixedSize(horizontal: false, vertical: true)
                                 .frame(maxWidth: .infinity, alignment: .leading).padding(compact ? 16 : 20)
@@ -239,7 +259,8 @@ struct StudyView: View {
                                 .frame(width: 28, height: 28).background(
                                     AtlasTheme.paper, in: RoundedRectangle(cornerRadius: 8))
                             Text(step.kind == .meaning ? option.meaning : option.word)
-                                .font(step.kind == .meaning ? .body : .system(.title3, design: .serif))
+                                .font(step.kind == .meaning ? .body : AtlasTypography.wordOption)
+                                .fixedSize(horizontal: false, vertical: true)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             if correct { Image(systemName: "checkmark.circle.fill") }
                             if wrong { Image(systemName: "xmark.circle") }
@@ -252,7 +273,7 @@ struct StudyView: View {
                                 RoundedRectangle(cornerRadius: 17).stroke(
                                     correct ? AtlasTheme.green : wrong ? AtlasTheme.clay : AtlasTheme.line, lineWidth: 1
                                 ))
-                    }.buttonStyle(.plain).disabled(feedback != nil)
+                    }.buttonStyle(StudyAnswerButtonStyle()).disabled(feedback != nil)
                         .keyboardShortcut(KeyEquivalent(Character(String(index + 1))), modifiers: [])
                         .accessibilityIdentifier("answerOption\(index)")
                 }
@@ -263,7 +284,7 @@ struct StudyView: View {
     private func spellingInput(_ word: VocabularyEntry) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             TextField("输入英文单词", text: Binding(get: { store.draftAnswer }, set: { store.updateDraft($0) }))
-                .textFieldStyle(.plain).font(.system(.title2, design: .serif)).padding(20)
+                .textFieldStyle(.plain).font(AtlasTypography.spelling).padding(20)
                 .background(AtlasTheme.surface, in: RoundedRectangle(cornerRadius: 16))
                 .overlay(RoundedRectangle(cornerRadius: 16).stroke(AtlasTheme.line, lineWidth: 1))
                 .focused($spellingFocused).disabled(store.session?.pending != nil)
@@ -304,6 +325,13 @@ struct StudyView: View {
         spellingFocused = false
     }
 
+    private func completionMetric(_ title: String, value: String) -> some View {
+        VStack(spacing: 8) {
+            Text(value).font(.largeTitle.monospacedDigit())
+            Text(title).font(.caption).foregroundStyle(AtlasTheme.secondary)
+        }.frame(maxWidth: .infinity).accessibilityElement(children: .combine)
+    }
+
     private func completion(_ session: LearningSession, compact: Bool) -> some View {
         ScrollView {
             VStack(spacing: compact ? 20 : 26) {
@@ -314,20 +342,24 @@ struct StudyView: View {
                 Eyebrow(text: "ONE CHAPTER CLOSER")
                 Text("今天的你，\n又多了一点光。").font(.system(compact ? .title : .largeTitle, design: .serif))
                     .multilineTextAlignment(.center)
-                HStack(spacing: 40) {
-                    VStack(spacing: 8) {
-                        Text("\(session.graded.count)").font(.largeTitle.monospacedDigit())
-                        Text("本次学习").font(.caption).foregroundStyle(AtlasTheme.secondary)
-                    }
-                    VStack(spacing: 8) {
-                        Text("\(session.accuracy)%").font(.largeTitle.monospacedDigit())
-                        Text("首次正确率").font(.caption).foregroundStyle(AtlasTheme.secondary)
-                    }
-                }.padding(25)
+                let metricLayout =
+                    dynamicTypeSize.isAccessibilitySize
+                    ? AnyLayout(VStackLayout(spacing: 24)) : AnyLayout(HStackLayout(spacing: 20))
+                metricLayout {
+                    completionMetric("本次学习", value: "\(session.graded.count)")
+                    completionMetric("首次正确率", value: "\(session.accuracy)%")
+                }.padding(20).background(AtlasTheme.surface, in: RoundedRectangle(cornerRadius: 20))
                 Text("进度已保存。让新认识的单词，在记忆里慢慢扎根。").font(.subheadline)
                     .foregroundStyle(AtlasTheme.secondary).multilineTextAlignment(.center)
                 Button("收好今天的进步") { dismiss() }.buttonStyle(AtlasPrimaryButton())
             }.padding(compact ? 24 : 32).frame(maxWidth: 620).frame(maxWidth: .infinity)
         }
+    }
+}
+
+/// Answered choices remain legible while disabled, so the result can still be compared.
+private struct StudyAnswerButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label.opacity(configuration.isPressed ? 0.8 : 1)
     }
 }

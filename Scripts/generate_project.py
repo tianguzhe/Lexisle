@@ -49,7 +49,7 @@ test_refs = [ref(p, "sourcecode.swift") for p in test_sources]
 ui_sources = sorted(str(p.relative_to(ROOT)) for p in (ROOT / "UITests").rglob("*.swift"))
 ui_refs = [ref(p, "sourcecode.swift") for p in ui_sources]
 resources = ["App/Resources/Assets.xcassets"] + sorted(str(p.relative_to(ROOT)) for p in (ROOT / "App/Resources").iterdir() if p.is_file())
-resource_refs = [ref(p, "folder.assetcatalog" if p.endswith(".xcassets") else "text.json" if p.endswith(".json") else "text") for p in resources]
+resource_refs = [ref(p, "folder.assetcatalog" if p.endswith(".xcassets") else "text.json" if p.endswith(".json") else "file" if p.endswith((".ttf", ".otf")) else "text") for p in resources]
 config_refs = [ref(str(p.relative_to(ROOT)), "text.xcconfig" if p.suffix == ".xcconfig" else "text.plist.xml") for p in sorted((ROOT / "Config").iterdir()) if p.is_file() and p.name != "Developer.xcconfig"]
 local_config = identifier("file:Config/Local.xcconfig")
 cloud_config = identifier("file:Config/Cloud.xcconfig")
@@ -108,7 +108,7 @@ for platform in ["iOS", "macOS"]:
         cloud = name.startswith("Cloud")
         settings = {
             "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon", "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME": "AccentColor",
-            "CURRENT_PROJECT_VERSION": "1", "MARKETING_VERSION": "1.0.0", "GENERATE_INFOPLIST_FILE": "NO",
+            "CURRENT_PROJECT_VERSION": "2", "MARKETING_VERSION": "1.0.1", "GENERATE_INFOPLIST_FILE": "NO",
             "INFOPLIST_FILE": "Config/" + platform + "-Info.plist", "PRODUCT_MODULE_NAME": "WordAtlas", "PRODUCT_NAME": "$(APP_ENGLISH_NAME)",
             "PRODUCT_BUNDLE_IDENTIFIER": "$(WORD_ATLAS_BUNDLE_PREFIX)" + (".mac" if mac else ""),
             "SDKROOT": "macosx" if mac else "iphoneos", "SUPPORTED_PLATFORMS": "macosx" if mac else "iphoneos iphonesimulator",

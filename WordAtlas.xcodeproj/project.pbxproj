@@ -269,6 +269,30 @@
 			"path" = "App/Resources/FSRS_LICENSE.txt";
 			"sourceTree" = "SOURCE_ROOT";
 		};
+		"BE41BF793FD9CB5F7554EFAA" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text";
+			"path" = "App/Resources/LORA_LICENSE.txt";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"83590B04E59819A0EC2B9D03" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "file";
+			"path" = "App/Resources/Lora-Italic.ttf";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"AF71C2D62901E955B717C66B" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "file";
+			"path" = "App/Resources/Lora-Regular.ttf";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"4F3B5989418C6F4437ED0673" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "file";
+			"path" = "App/Resources/Lora-SemiBold.ttf";
+			"sourceTree" = "SOURCE_ROOT";
+		};
 		"EA706D6746107CAEB0AFA024" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "text";
@@ -720,6 +744,22 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "562405A531240F6BDE906937";
 		};
+		"BC727F295DEDEA3299C4CE45" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "BE41BF793FD9CB5F7554EFAA";
+		};
+		"C7424CB0929F6A2D1FEAA7F7" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "83590B04E59819A0EC2B9D03";
+		};
+		"CB5D26DA9B4AFE3DF528288A" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "AF71C2D62901E955B717C66B";
+		};
+		"44AFE4EF8B7404104A81792D" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "4F3B5989418C6F4437ED0673";
+		};
 		"557E64D9F5C64E915C7667AC" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "EA706D6746107CAEB0AFA024";
@@ -747,6 +787,10 @@
 				"5531C1C8E650B90C5F766B15",
 				"8BBA149CA9542ABE471232C4",
 				"EB6119AF8DD32E5C7904296C",
+				"BC727F295DEDEA3299C4CE45",
+				"C7424CB0929F6A2D1FEAA7F7",
+				"CB5D26DA9B4AFE3DF528288A",
+				"44AFE4EF8B7404104A81792D",
 				"557E64D9F5C64E915C7667AC",
 				"244D4D920EBEF42D08E42E2E",
 				"D01426705E771FB880E154DC",
@@ -798,8 +842,8 @@
 			"buildSettings" = {
 				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
 				"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = "AccentColor";
-				"CURRENT_PROJECT_VERSION" = "1";
-				"MARKETING_VERSION" = "1.0.0";
+				"CURRENT_PROJECT_VERSION" = "2";
+				"MARKETING_VERSION" = "1.0.1";
 				"GENERATE_INFOPLIST_FILE" = "NO";
 				"INFOPLIST_FILE" = "Config/iOS-Info.plist";
 				"PRODUCT_MODULE_NAME" = "WordAtlas";
@@ -849,8 +893,8 @@
 			"buildSettings" = {
 				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
 				"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = "AccentColor";
-				"CURRENT_PROJECT_VERSION" = "1";
-				"MARKETING_VERSION" = "1.0.0";
+				"CURRENT_PROJECT_VERSION" = "2";
+				"MARKETING_VERSION" = "1.0.1";
 				"GENERATE_INFOPLIST_FILE" = "NO";
 				"INFOPLIST_FILE" = "Config/iOS-Info.plist";
 				"PRODUCT_MODULE_NAME" = "WordAtlas";
@@ -900,8 +944,8 @@
 			"buildSettings" = {
 				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
 				"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = "AccentColor";
-				"CURRENT_PROJECT_VERSION" = "1";
-				"MARKETING_VERSION" = "1.0.0";
+				"CURRENT_PROJECT_VERSION" = "2";
+				"MARKETING_VERSION" = "1.0.1";
 				"GENERATE_INFOPLIST_FILE" = "NO";
 				"INFOPLIST_FILE" = "Config/iOS-Info.plist";
 				"PRODUCT_MODULE_NAME" = "WordAtlas";
@@ -950,8 +994,8 @@
 			"buildSettings" = {
 				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
 				"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = "AccentColor";
-				"CURRENT_PROJECT_VERSION" = "1";
-				"MARKETING_VERSION" = "1.0.0";
+				"CURRENT_PROJECT_VERSION" = "2";
+				"MARKETING_VERSION" = "1.0.1";
 				"GENERATE_INFOPLIST_FILE" = "NO";
 				"INFOPLIST_FILE" = "Config/iOS-Info.plist";
 				"PRODUCT_MODULE_NAME" = "WordAtlas";
@@ -1313,6 +1357,22 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "562405A531240F6BDE906937";
 		};
+		"254A575AE26EF11D250B010D" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "BE41BF793FD9CB5F7554EFAA";
+		};
+		"A34201C90E393FD9308C9642" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "83590B04E59819A0EC2B9D03";
+		};
+		"029ADC0294E02D4B7D91623C" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "AF71C2D62901E955B717C66B";
+		};
+		"40493127384E6C113E5364B1" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "4F3B5989418C6F4437ED0673";
+		};
 		"06B736B6B4BB4B6C59A4393F" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "EA706D6746107CAEB0AFA024";
@@ -1340,6 +1400,10 @@
 				"0F48655EFB1AF2243864BDDE",
 				"575D29A5DC27395597A8B985",
 				"A1EF0DB5E21BE3A0357B6BF9",
+				"254A575AE26EF11D250B010D",
+				"A34201C90E393FD9308C9642",
+				"029ADC0294E02D4B7D91623C",
+				"40493127384E6C113E5364B1",
 				"06B736B6B4BB4B6C59A4393F",
 				"593814EC4D9A88493D481CB5",
 				"34DB987911186337EB2C48A0",
@@ -1391,8 +1455,8 @@
 			"buildSettings" = {
 				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
 				"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = "AccentColor";
-				"CURRENT_PROJECT_VERSION" = "1";
-				"MARKETING_VERSION" = "1.0.0";
+				"CURRENT_PROJECT_VERSION" = "2";
+				"MARKETING_VERSION" = "1.0.1";
 				"GENERATE_INFOPLIST_FILE" = "NO";
 				"INFOPLIST_FILE" = "Config/macOS-Info.plist";
 				"PRODUCT_MODULE_NAME" = "WordAtlas";
@@ -1442,8 +1506,8 @@
 			"buildSettings" = {
 				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
 				"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = "AccentColor";
-				"CURRENT_PROJECT_VERSION" = "1";
-				"MARKETING_VERSION" = "1.0.0";
+				"CURRENT_PROJECT_VERSION" = "2";
+				"MARKETING_VERSION" = "1.0.1";
 				"GENERATE_INFOPLIST_FILE" = "NO";
 				"INFOPLIST_FILE" = "Config/macOS-Info.plist";
 				"PRODUCT_MODULE_NAME" = "WordAtlas";
@@ -1493,8 +1557,8 @@
 			"buildSettings" = {
 				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
 				"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = "AccentColor";
-				"CURRENT_PROJECT_VERSION" = "1";
-				"MARKETING_VERSION" = "1.0.0";
+				"CURRENT_PROJECT_VERSION" = "2";
+				"MARKETING_VERSION" = "1.0.1";
 				"GENERATE_INFOPLIST_FILE" = "NO";
 				"INFOPLIST_FILE" = "Config/macOS-Info.plist";
 				"PRODUCT_MODULE_NAME" = "WordAtlas";
@@ -1542,8 +1606,8 @@
 			"buildSettings" = {
 				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
 				"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = "AccentColor";
-				"CURRENT_PROJECT_VERSION" = "1";
-				"MARKETING_VERSION" = "1.0.0";
+				"CURRENT_PROJECT_VERSION" = "2";
+				"MARKETING_VERSION" = "1.0.1";
 				"GENERATE_INFOPLIST_FILE" = "NO";
 				"INFOPLIST_FILE" = "Config/macOS-Info.plist";
 				"PRODUCT_MODULE_NAME" = "WordAtlas";
@@ -1910,6 +1974,10 @@
 				"3AA005BAB8DC9F2DD1BD1BCC",
 				"8FC8C9C43257B8E7E32FCBBE",
 				"562405A531240F6BDE906937",
+				"BE41BF793FD9CB5F7554EFAA",
+				"83590B04E59819A0EC2B9D03",
+				"AF71C2D62901E955B717C66B",
+				"4F3B5989418C6F4437ED0673",
 				"EA706D6746107CAEB0AFA024",
 				"B0E5D18AB35E9BE77584F6F2",
 				"79A7DDF3B91B0B8F3A374A76",

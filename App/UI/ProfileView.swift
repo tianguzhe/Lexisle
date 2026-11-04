@@ -76,7 +76,7 @@ struct ProfileView: View {
                     Text("近 7 天").tag(7)
                     Text("近 30 天").tag(30)
                 }
-                .pickerStyle(.segmented).frame(maxWidth: compact ? 260 : 160)
+                .pickerStyle(.segmented).labelsHidden().frame(maxWidth: compact ? 260 : 180, minHeight: 44)
             }
             Chart(activity) { day in
                 BarMark(x: .value("日期", day.date, unit: .day), y: .value("学习词数", day.reviewed))
@@ -97,9 +97,12 @@ struct ProfileView: View {
                 }
             }
             .frame(height: compact ? 175 : 220)
-            if store.reviewEvents.isEmpty {
-                Label("完成第一次学习，留下你的第一段足迹。", systemImage: "sparkle")
-                    .font(.caption).foregroundStyle(AtlasTheme.secondary).fixedSize(horizontal: false, vertical: true)
+            if activity.allSatisfy({ $0.reviewed == 0 }) {
+                Label(
+                    store.reviewEvents.isEmpty ? "完成第一次学习，留下你的第一段足迹。" : "这段时间还没有学习记录，从今天继续。",
+                    systemImage: "sparkle"
+                )
+                .font(.caption).foregroundStyle(AtlasTheme.secondary).fixedSize(horizontal: false, vertical: true)
             }
         }.atlasSurface(padding: compact ? 18 : 24)
     }
@@ -111,7 +114,11 @@ struct ProfileView: View {
                 Spacer()
                 Image(systemName: "sun.max").foregroundStyle(AtlasTheme.clay)
             }
-            HStack(alignment: .top, spacing: 16) {
+            let layout =
+                dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 18))
+                : AnyLayout(HStackLayout(alignment: .top, spacing: 16))
+            layout {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("\(store.todayNewCount) / \(store.preferences.dailyGoal)").font(
                         .system(.title2, design: .serif))
@@ -159,12 +166,21 @@ struct ProfileView: View {
                 Spacer(minLength: 2)
                 Image(systemName: symbol).font(.subheadline.weight(.light)).foregroundStyle(AtlasTheme.green)
             }
-            HStack(alignment: .firstTextBaseline, spacing: 6) {
-                Text(value).font(.system(size: metricSize, weight: .regular, design: .serif)).monospacedDigit()
-                    .lineLimit(1).minimumScaleFactor(0.8)
-                Text(unit).font(.caption).foregroundStyle(AtlasTheme.secondary)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    metricValue(value).fixedSize()
+                    Text(unit).font(.caption).foregroundStyle(AtlasTheme.secondary).fixedSize()
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    metricValue(value).lineLimit(1).minimumScaleFactor(0.8)
+                    Text(unit).font(.caption).foregroundStyle(AtlasTheme.secondary)
+                }
             }
-        }.frame(maxWidth: .infinity, alignment: .leading).atlasSurface(padding: 17)
+        }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading).atlasSurface(padding: 17)
             .accessibilityElement(children: .combine)
+    }
+
+    private func metricValue(_ value: String) -> some View {
+        Text(value).font(.system(size: metricSize, weight: .regular, design: .serif)).monospacedDigit()
     }
 }

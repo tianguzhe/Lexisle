@@ -26,7 +26,9 @@ private struct LicenseNotice: Identifiable, Sendable {
     let text: String
 
     static func loadBundled() -> [LicenseNotice] {
-        let resources = [("UPSTREAM_LICENSE", "txt"), ("CONTENT_LICENSE", "md"), ("FSRS_LICENSE", "txt")]
+        let resources = [
+            ("UPSTREAM_LICENSE", "txt"), ("CONTENT_LICENSE", "md"), ("FSRS_LICENSE", "txt"), ("LORA_LICENSE", "txt"),
+        ]
         return resources.compactMap { name, fileExtension in
             guard let url = Bundle.main.url(forResource: name, withExtension: fileExtension),
                 let text = try? String(contentsOf: url, encoding: .utf8)

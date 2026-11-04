@@ -60,7 +60,7 @@ struct AtlasSidebar: View {
         VStack(alignment: .leading, spacing: 14) {
             Image(systemName: "leaf").font(.title2.weight(.ultraLight))
             Text("Little by little,\na little becomes a lot.")
-                .font(.system(.subheadline, design: .serif)).italic().lineSpacing(4)
+                .font(AtlasTypography.englishQuote).lineSpacing(4)
             Text("每天一点，慢慢看见改变。").font(.caption2).foregroundStyle(AtlasTheme.secondary)
         }.foregroundStyle(AtlasTheme.green).padding(20)
     }

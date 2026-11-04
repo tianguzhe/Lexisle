@@ -34,6 +34,30 @@ enum AtlasTheme {
     }
 }
 
+/// English learning content uses book typography; interface labels and IPA retain system fonts.
+enum AtlasTypography {
+    static let wordCard = Font.custom("Lora-SemiBold", size: size(mobile: 18, desktop: 16), relativeTo: .headline)
+    static let wordFeature = Font.custom("Lora-SemiBold", size: size(mobile: 24, desktop: 22), relativeTo: .title2)
+    static let wordOption = Font.custom("Lora-SemiBold", size: size(mobile: 20, desktop: 18), relativeTo: .title3)
+    static let englishBody = Font.custom("Lora-Regular", size: size(mobile: 17, desktop: 15), relativeTo: .body)
+    static let englishDetail = Font.custom(
+        "Lora-Regular", size: size(mobile: 15, desktop: 13), relativeTo: .subheadline)
+    static let spelling = Font.custom("Lora-Regular", size: size(mobile: 22, desktop: 20), relativeTo: .title2)
+    static let englishQuote = Font.custom("Lora-Italic", size: size(mobile: 15, desktop: 13), relativeTo: .subheadline)
+
+    static func wordTitle(size: CGFloat) -> Font {
+        .custom("Lora-SemiBold", size: size, relativeTo: .largeTitle)
+    }
+
+    private static func size(mobile: CGFloat, desktop: CGFloat) -> CGFloat {
+        #if os(macOS)
+        desktop
+        #else
+        mobile
+        #endif
+    }
+}
+
 struct AtlasLayoutMetrics: Equatable {
     let width: CGFloat
     var isCompact: Bool { width < 600 }
@@ -102,16 +126,19 @@ struct SectionHeading<Trailing: View>: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     var body: some View {
         let layout =
-            dynamicTypeSize.isAccessibilitySize
+            dynamicTypeSize >= .xxxLarge
             ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
             : AnyLayout(HStackLayout(alignment: .center, spacing: 12))
         layout {
             VStack(alignment: .leading, spacing: 5) {
                 Text(title).font(.system(.headline, weight: .semibold)).foregroundStyle(AtlasTheme.ink)
                     .fixedSize(horizontal: false, vertical: true)
-                if !subtitle.isEmpty { Text(subtitle).font(.caption).foregroundStyle(AtlasTheme.secondary) }
+                if !subtitle.isEmpty {
+                    Text(subtitle).font(.caption).foregroundStyle(AtlasTheme.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }.frame(maxWidth: .infinity, alignment: .leading)
-            trailing
+            trailing.fixedSize(horizontal: dynamicTypeSize < .xxxLarge, vertical: true)
         }
     }
 }
@@ -164,8 +191,9 @@ struct EmptyAtlasView: View {
                 .foregroundStyle(AtlasTheme.green).frame(width: 90, height: 90)
                 .background(AtlasTheme.moss, in: RoundedRectangle(cornerRadius: 28))
             Text(title).font(.title3.weight(.medium)).foregroundStyle(AtlasTheme.ink)
+                .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
             Text(message).font(.subheadline).foregroundStyle(AtlasTheme.secondary)
-                .multilineTextAlignment(.center).frame(maxWidth: 300)
+                .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true).frame(maxWidth: 300)
         }.frame(maxWidth: .infinity, minHeight: 280).padding(24)
     }
 }

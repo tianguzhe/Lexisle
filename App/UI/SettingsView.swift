@@ -3,7 +3,8 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(AppStore.self) private var store
     @Environment(\.dismiss) private var dismiss
-    @State private var cacheBytes: Int64 = 0
+    @State private var cacheBytes: Int64?
+    @State private var checkingSync = false
     @State private var cacheError: String?
     @State private var clearing = false
     @State private var showsCacheConfirmation = false
@@ -32,14 +33,26 @@ struct SettingsView: View {
                 if let date = store.lastSyncedAt {
                     LabeledContent("最近成功同步", value: date.formatted(date: .abbreviated, time: .shortened))
                 }
-                Button("检查同步状态") { Task { await store.refresh() } }
+                Button {
+                    Task { await checkSyncStatus() }
+                } label: {
+                    HStack(spacing: 10) {
+                        Text(checkingSync ? "正在检查…" : "检查同步状态")
+                        if checkingSync {
+                            ProgressView().controlSize(.small).accessibilityHidden(true)
+                        }
+                    }.frame(minHeight: 44)
+                }.disabled(checkingSync)
             } header: {
                 Text("iCloud 与学习记录")
             } footer: {
                 Text("使用同一 Apple ID 同步学习成果、收藏和设置。未完成的题目保留在当前设备；插画和录音缓存不占用 iCloud 空间。")
             }
             Section {
-                LabeledContent("媒体缓存", value: ByteCountFormatter.string(fromByteCount: cacheBytes, countStyle: .file))
+                LabeledContent(
+                    "媒体缓存",
+                    value: cacheBytes.map { ByteCountFormatter.string(fromByteCount: $0, countStyle: .file) } ?? "正在计算…"
+                )
                 LabeledContent("缓存上限", value: "512 MB")
                 Button(clearing ? "正在清理…" : "清理图片与录音缓存", role: .destructive) { showsCacheConfirmation = true }
                     .disabled(clearing)
@@ -54,10 +67,11 @@ struct SettingsView: View {
                     AtlasMark(size: 45)
                     VStack(alignment: .leading, spacing: 4) {
                         Text(AppBrand.displayName).font(.headline)
-                        Text("\(AppBrand.tagline)  \(AppBrand.version)").font(.caption).foregroundStyle(
-                            AtlasTheme.secondary)
+                        Text(AppBrand.tagline).font(.caption).foregroundStyle(AtlasTheme.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }.padding(.vertical, 9)
+                LabeledContent("版本", value: AppBrand.version)
                 Link("原项目与开放词库", destination: URL(string: "https://github.com/designfuchen/word-atlas")!)
                 Link(
                     "Word Atlas contributors — CC BY 4.0",
@@ -89,6 +103,13 @@ struct SettingsView: View {
                 store.updatePreferences(preferences)
             }
         )
+    }
+
+    private func checkSyncStatus() async {
+        guard !checkingSync else { return }
+        checkingSync = true
+        defer { checkingSync = false }
+        await store.refresh()
     }
 
     private func clearMediaCache() async {

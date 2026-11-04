@@ -11,7 +11,7 @@ struct TopicLibraryView: View {
             let metrics = AtlasLayoutMetrics(width: geometry.size.width)
             let columns =
                 dynamicTypeSize.isAccessibilitySize
-                ? 2 : geometry.size.width < 600 ? 2 : geometry.size.width < 900 ? 3 : 4
+                ? 1 : geometry.size.width < 600 ? 2 : geometry.size.width < 900 ? 3 : 4
             let counts = Dictionary(grouping: vocabulary.entries, by: \.topic).mapValues(\.count)
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {

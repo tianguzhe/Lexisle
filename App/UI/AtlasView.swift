@@ -35,14 +35,11 @@ struct AtlasView: View {
         let words = filteredWords
         GeometryReader { geometry in
             let metrics = AtlasLayoutMetrics(width: geometry.size.width)
+            let horizontalPadding = listStyle ? 18 : metrics.horizontalPadding
+            let contentWidth = min(geometry.size.width, metrics.contentWidth) - horizontalPadding * 2
             ScrollView {
-                VStack(alignment: .leading, spacing: metrics.sectionSpacing) {
-                    AtlasPageTitle(
-                        title: favoritesOnly ? "把喜欢的词，留下。" : "把世界，读成单词。",
-                        subtitle: favoritesOnly ? "每一次收藏，都是好奇心的回声。" : "7,298 个单词，19 个生活主题",
-                        eyebrow: favoritesOnly ? "MY COLLECTION" : AppBrand.wordmark,
-                        compact: metrics.isCompact || listStyle
-                    )
+                VStack(alignment: .leading, spacing: listStyle ? 20 : metrics.sectionSpacing) {
+                    header(compact: metrics.isCompact)
                     VStack(alignment: .leading, spacing: 12) {
                         searchField
                         filters
@@ -63,10 +60,12 @@ struct AtlasView: View {
                                     } label: {
                                         wordRow(word)
                                     }.buttonStyle(.plain)
+                                        .accessibilityLabel("\(word.word)，\(word.meaning)，\(word.cefr)")
+                                        .accessibilityAddTraits(router.selectedWordID == word.id ? .isSelected : [])
                                 }
                             }
                         } else {
-                            LazyVGrid(columns: gridColumns(width: geometry.size.width), spacing: 16) {
+                            LazyVGrid(columns: gridColumns(contentWidth: contentWidth), spacing: 16) {
                                 ForEach(words) { word in
                                     Button {
                                         openWord(word)
@@ -79,7 +78,7 @@ struct AtlasView: View {
                         }
                     }
                 }
-                .padding(.horizontal, listStyle ? 18 : metrics.horizontalPadding)
+                .padding(.horizontal, horizontalPadding)
                 .padding(.top, metrics.isCompact ? 16 : 24).padding(.bottom, 30)
                 .frame(maxWidth: 1120).frame(maxWidth: .infinity)
             }
@@ -93,6 +92,25 @@ struct AtlasView: View {
         .toolbarTitleDisplayMode(.inline)
         #endif
         .onChange(of: router.searchFocusToken) { _, _ in searchFocused = true }
+    }
+
+    @ViewBuilder private func header(compact: Bool) -> some View {
+        if listStyle {
+            VStack(alignment: .leading, spacing: 7) {
+                Text(favoritesOnly ? "我的收藏" : "单词图鉴")
+                    .font(.system(.title2, design: .serif, weight: .medium)).foregroundStyle(AtlasTheme.ink)
+                Text(favoritesOnly ? "把想再见的词，收进这里。" : "循着好奇，翻开一个词。")
+                    .font(.caption).foregroundStyle(AtlasTheme.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        } else {
+            AtlasPageTitle(
+                title: favoritesOnly ? "把喜欢的词，留下。" : "把世界，读成单词。",
+                subtitle: favoritesOnly ? "每一次收藏，都是好奇心的回声。" : "7,298 个单词，19 个生活主题",
+                eyebrow: favoritesOnly ? "MY COLLECTION" : AppBrand.wordmark,
+                compact: compact
+            )
+        }
     }
 
     private var searchField: some View {
@@ -137,12 +155,13 @@ struct AtlasView: View {
         router.show(word)
     }
 
-    private func gridColumns(width: CGFloat) -> [GridItem] {
+    private func gridColumns(contentWidth: CGFloat) -> [GridItem] {
         if dynamicTypeSize.isAccessibilitySize { return [GridItem(.flexible(minimum: 0))] }
-        if width < 620 {
-            return [GridItem(.flexible(minimum: 0), spacing: 14), GridItem(.flexible(minimum: 0), spacing: 14)]
-        }
-        return [GridItem(.adaptive(minimum: 180, maximum: 240), spacing: 18)]
+        let largerText = dynamicTypeSize >= .xxLarge
+        let spacing: CGFloat = contentWidth < 560 ? 14 : 18
+        let minimumWidth: CGFloat = largerText ? 220 : 180
+        let count = max(largerText ? 1 : 2, Int((max(0, contentWidth) + spacing) / (minimumWidth + spacing)))
+        return Array(repeating: GridItem(.flexible(minimum: 0), spacing: spacing), count: count)
     }
 
     private var filters: some View {
@@ -195,12 +214,17 @@ struct AtlasView: View {
 
     private func wordRow(_ word: VocabularyEntry) -> some View {
         HStack(spacing: 14) {
-            WordArtwork(wordID: word.id, topic: word.topic).frame(width: 60, height: 66)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+            if !dynamicTypeSize.isAccessibilitySize {
+                WordArtwork(wordID: word.id, topic: word.topic).frame(width: 60, height: 66)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
             VStack(alignment: .leading, spacing: 6) {
-                Text(word.word).font(.system(.headline, design: .serif)).foregroundStyle(AtlasTheme.ink)
-                    .lineLimit(2).fixedSize(horizontal: false, vertical: true)
-                Text(word.meaning).font(.caption).foregroundStyle(AtlasTheme.secondary).lineLimit(2)
+                Text(word.word).font(AtlasTypography.wordCard).foregroundStyle(AtlasTheme.ink)
+                    .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(word.meaning).font(.caption).foregroundStyle(AtlasTheme.secondary)
+                    .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
+                    .fixedSize(horizontal: false, vertical: true)
             }.frame(maxWidth: .infinity, alignment: .leading)
             if store.favorites.contains(word.id) {
                 Image(systemName: "bookmark.fill").font(.caption).foregroundStyle(AtlasTheme.clay)
@@ -216,10 +240,10 @@ struct AtlasView: View {
 struct WordGridCard: View {
     let word: VocabularyEntry
     @Environment(AppStore.self) private var store
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            WordArtwork(wordID: word.id, topic: word.topic)
-                .aspectRatio(1.2, contentMode: .fit)
+            artwork
                 .overlay(alignment: .topLeading) { LevelBadge(level: word.cefr).padding(9) }
                 .overlay(alignment: .topTrailing) {
                     if store.favorites.contains(word.id) {
@@ -229,11 +253,12 @@ struct WordGridCard: View {
                     }
                 }
             VStack(alignment: .leading, spacing: 7) {
-                Text(word.word).font(.system(.headline, design: .serif, weight: .medium))
-                    .foregroundStyle(AtlasTheme.ink).lineLimit(2, reservesSpace: true)
+                Text(word.word).font(AtlasTypography.wordCard)
+                    .foregroundStyle(AtlasTheme.ink)
+                    .modifier(WordCardLineLimit(expanded: dynamicTypeSize.isAccessibilitySize))
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Text(word.meaning).font(.caption).foregroundStyle(AtlasTheme.secondary)
-                    .lineLimit(2, reservesSpace: true)
+                    .modifier(WordCardLineLimit(expanded: dynamicTypeSize.isAccessibilitySize))
                 HStack {
                     Text(word.topicName).font(.caption2).foregroundStyle(AtlasTheme.secondary)
                     Spacer()
@@ -247,6 +272,27 @@ struct WordGridCard: View {
             }.padding(13)
         }.background(AtlasTheme.surface).clipShape(RoundedRectangle(cornerRadius: 20))
             .overlay(RoundedRectangle(cornerRadius: 20).stroke(AtlasTheme.line.opacity(0.7), lineWidth: 0.7))
+    }
+
+    @ViewBuilder private var artwork: some View {
+        let image = WordArtwork(wordID: word.id, topic: word.topic)
+        if dynamicTypeSize.isAccessibilitySize {
+            image.frame(height: 180)
+        } else {
+            image.aspectRatio(1.2, contentMode: .fit)
+        }
+    }
+}
+
+private struct WordCardLineLimit: ViewModifier {
+    let expanded: Bool
+
+    @ViewBuilder func body(content: Content) -> some View {
+        if expanded {
+            content.fixedSize(horizontal: false, vertical: true)
+        } else {
+            content.lineLimit(2, reservesSpace: true)
+        }
     }
 }
 

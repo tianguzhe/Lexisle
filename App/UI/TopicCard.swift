@@ -4,17 +4,14 @@ struct TopicCard: View {
     let topic: Topic
     var count: Int? = nil
     let action: () -> Void
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 10) {
-                GeometryReader { geometry in
-                    Image("topic-\(topic.id)").resizable().scaledToFill()
-                        .frame(width: geometry.size.width, height: geometry.size.height).clipped()
-                }
-                .aspectRatio(1.45, contentMode: .fit)
-                .clipShape(RoundedRectangle(cornerRadius: 13))
-                .accessibilityHidden(true)
+                artwork
+                    .clipShape(RoundedRectangle(cornerRadius: 13))
+                    .accessibilityHidden(true)
                 HStack(alignment: .center, spacing: 8) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(topic.name).font(.subheadline.weight(.medium))
@@ -35,6 +32,20 @@ struct TopicCard: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(topic.name)
+        .accessibilityValue(count.map { "\($0.formatted()) 个词" } ?? "")
         .accessibilityIdentifier("topic-\(topic.id)")
     }
+
+    @ViewBuilder private var artwork: some View {
+        let image = GeometryReader { geometry in
+            Image("topic-\(topic.id)").resizable().scaledToFill()
+                .frame(width: geometry.size.width, height: geometry.size.height).clipped()
+        }
+        if dynamicTypeSize.isAccessibilitySize {
+            image.frame(height: 160)
+        } else {
+            image.aspectRatio(1.45, contentMode: .fit)
+        }
+    }
+
 }

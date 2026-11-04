@@ -31,3 +31,20 @@ python3 Scripts/generate_project.py
 ```
 
 同一组路径同时生成 PNG、PDF、SVG，避免桌面图标与应用内标识发生偏差。源码工程和模块继续使用 `WordAtlas` 这一技术标识，构建产物为 `Lexisle.app`；数据及媒体来源仍按原许可署名 Word Atlas contributors。
+
+
+## 英文排版
+
+学习内容使用 **Lora**，以带有书写感的衬线呼应温暖插画。单词标题使用 SemiBold，英文释义、例句、搭配与词族使用 Regular，侧栏寄语使用真正的 Italic 字重。中文、音标、界面操作及等级标签保留系统字体。
+
+所有英文字体样式集中在 `App/UI/DesignSystem.swift` 的 `AtlasTypography` 中。词卡与正文分别设置 iOS、macOS 基础字号；使用 SwiftUI `relativeTo` 缩放，避免与 `@ScaledMetric` 叠加。字体通过 iOS `UIAppFonts` 和 macOS `ATSApplicationFontsPath` 加载，全部离线可用。
+
+![英文排版对比](typography-preview.png)
+
+字体来自 [Lora 原作者仓库](https://github.com/cyrealtype/Lora-Cyrillic/tree/2d53b449b60e185b39f671b44fded83e0910ad30/fonts/ttf)，固定提交 `2d53b449b60e185b39f671b44fded83e0910ad30`。三个静态 TTF 均原样内置，总计约 610 KiB，采用 SIL Open Font License 1.1；完整许可为 `App/Resources/LORA_LICENSE.txt`，应用「内容与许可」页面也可查看。
+
+| 文件 | SHA-256 |
+| --- | --- |
+| `Lora-Regular.ttf` | `c72a925082ba55885e7b4ead25d34a3c91fa44edda72a16a3a2983fc7fa7cef3` |
+| `Lora-SemiBold.ttf` | `a9f5bbcebb6b53d53b6d7d571b2076f3db4931026693397200f69801b6701a81` |
+| `Lora-Italic.ttf` | `1985f2fa49d675c3d88ca6a0b9161be38f955bec7efb025d2a5b68bc03e471fe` |

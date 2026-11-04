@@ -36,22 +36,25 @@ struct OnboardingView: View {
                     }
                     levelSelection
                     let layout =
-                        compact || dynamicTypeSize.isAccessibilitySize
+                        geometry.size.width < 700 || dynamicTypeSize.isAccessibilitySize
                         ? AnyLayout(VStackLayout(alignment: .leading, spacing: 18))
                         : AnyLayout(HStackLayout(alignment: .top, spacing: 22))
                     layout {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("每天认识几个新词？").font(.subheadline.weight(.semibold))
-                            Picker("每日新词量", selection: $goal) {
-                                ForEach(LearningPreferences.dailyGoalOptions, id: \.self) { Text("\($0) 个").tag($0) }
-                            }.pickerStyle(.segmented).frame(minHeight: 44)
+                            if dynamicTypeSize.isAccessibilitySize {
+                                dailyGoalPicker.pickerStyle(.menu)
+                            } else {
+                                dailyGoalPicker.pickerStyle(.segmented)
+                            }
                         }.frame(maxWidth: .infinity, alignment: .leading)
                         VStack(alignment: .leading, spacing: 10) {
                             Text("喜欢的声音").font(.subheadline.weight(.semibold))
-                            Picker("喜欢的口音", selection: $accent) {
-                                Text("英式发音").tag(Accent.uk)
-                                Text("美式发音").tag(Accent.us)
-                            }.pickerStyle(.segmented).frame(minHeight: 44)
+                            if dynamicTypeSize.isAccessibilitySize {
+                                accentPicker.pickerStyle(.menu)
+                            } else {
+                                accentPicker.pickerStyle(.segmented)
+                            }
                         }.frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
@@ -87,11 +90,28 @@ struct OnboardingView: View {
         .background(AtlasTheme.paper).foregroundStyle(AtlasTheme.ink).tint(AtlasTheme.green)
     }
 
+    private var dailyGoalPicker: some View {
+        Picker("每日新词量", selection: $goal) {
+            ForEach(LearningPreferences.dailyGoalOptions, id: \.self) { Text("\($0) 个").tag($0) }
+        }.labelsHidden().frame(maxWidth: .infinity, minHeight: 44)
+    }
+
+    private var accentPicker: some View {
+        Picker("喜欢的口音", selection: $accent) {
+            Text("英式发音").tag(Accent.uk)
+            Text("美式发音").tag(Accent.us)
+        }.labelsHidden().frame(maxWidth: .infinity, minHeight: 44)
+    }
+
     private var levelSelection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
+            let headingLayout =
+                dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 6))
+                : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: 12))
+            headingLayout {
                 Text("你想从哪里开始？").font(.subheadline.weight(.semibold))
-                Spacer(minLength: 8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 Text("随时可调整").font(.caption).foregroundStyle(AtlasTheme.secondary)
             }
             LazyVGrid(

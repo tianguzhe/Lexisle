@@ -30,10 +30,10 @@ PYTHON_BIN=/opt/homebrew/bin/python3.14 bash Scripts/package.sh dmg
 
 ```text
 dist/
-  Lexisle-1.0.0-macOS-universal.dmg
-  Lexisle-1.0.0-macOS-universal.dmg.sha256
-  Lexisle-1.0.0-iOS-unsigned.ipa
-  Lexisle-1.0.0-iOS-unsigned.ipa.sha256
+  Lexisle-1.0.1-macOS-universal.dmg
+  Lexisle-1.0.1-macOS-universal.dmg.sha256
+  Lexisle-1.0.1-iOS-unsigned.ipa
+  Lexisle-1.0.1-iOS-unsigned.ipa.sha256
 ```
 
 `dist/` 和中间产物均被 Git 忽略。构建日志在 `.build/package/logs/`，原始 Mac App 和 iOS archive 分别在 `.build/package/macos/`、`.build/package/ios/`。`--skip-build` 会核对指定版本；同时打包两个平台时，还要求缓存的版本号和构建号一致。
@@ -62,8 +62,8 @@ DMG 不包含 Developer ID 签名，也未进行 Apple 公证。下载后 macOS 
 可以独立校验已有产物：
 
 ```sh
-python3 Scripts/packaging/artifact_utils.py verify-dmg dist/Lexisle-1.0.0-macOS-universal.dmg --app-name Lexisle
-python3 Scripts/packaging/artifact_utils.py verify-ipa dist/Lexisle-1.0.0-iOS-unsigned.ipa --app-name Lexisle
+python3 Scripts/packaging/artifact_utils.py verify-dmg dist/Lexisle-1.0.1-macOS-universal.dmg --app-name Lexisle
+python3 Scripts/packaging/artifact_utils.py verify-ipa dist/Lexisle-1.0.1-iOS-unsigned.ipa --app-name Lexisle
 (cd dist && shasum -a 256 -c *.sha256)
 ```
 
