@@ -49,13 +49,14 @@ jobs:
       - name: Run macOS unit tests
         if: matrix.package == 'dmg'
         run: |
-          mkdir -p .build/package/logs
-          if ! xcodebuild -project WordAtlas.xcodeproj -scheme WordAtlas-macOS \
+          mkdir -p .build/artifacts.noindex/package/logs
+          if ! python3 Scripts/build_isolation.py exec --lane mac-tests -- \
+            xcodebuild -project WordAtlas.xcodeproj -scheme WordAtlas-macOS \
             -configuration Debug -destination 'platform=macOS' \
-            -derivedDataPath .build/package/test-derived-data \
-            -resultBundlePath .build/package/test-results.xcresult \
-            test > .build/package/logs/macos-tests.log 2>&1; then
-            tail -n 80 .build/package/logs/macos-tests.log
+            -derivedDataPath .build/artifacts.noindex/package/test-derived-data \
+            -resultBundlePath .build/artifacts.noindex/package/test-results.xcresult \
+            test > .build/artifacts.noindex/package/logs/macos-tests.log 2>&1; then
+            tail -n 80 .build/artifacts.noindex/package/logs/macos-tests.log
             exit 1
           fi
 
@@ -93,8 +94,8 @@ jobs:
         with:
           name: Lexisle-build-logs-${{ matrix.package }}
           path: |
-            .build/package/logs/
-            .build/package/test-results.xcresult/
+            .build/artifacts.noindex/package/logs/
+            .build/artifacts.noindex/package/test-results.xcresult/
           include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 14

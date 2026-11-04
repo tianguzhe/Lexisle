@@ -11,6 +11,7 @@
 需要 Xcode 27.2 或兼容的更新版本。项目没有 CocoaPods、全局 XcodeGen 或运行时 JavaScript 依赖；FSRS 已按固定提交放入 `Vendor/swift-fsrs`。
 
 ```sh
+python3 Scripts/build_isolation.py prepare
 open WordAtlas.xcodeproj
 ```
 
@@ -34,25 +35,33 @@ xcrun swift-format lint --strict --recursive --configuration .swift-format App T
 命令行构建与测试：
 
 ```sh
-xcodebuild -project WordAtlas.xcodeproj -scheme WordAtlas-macOS \
-  -destination 'platform=macOS' -derivedDataPath build/mac build
+python3 Scripts/build_isolation.py exec --lane mac -- \
+  xcodebuild -project WordAtlas.xcodeproj -scheme WordAtlas-macOS \
+  -destination 'platform=macOS' build
 
-xcodebuild -project WordAtlas.xcodeproj -scheme WordAtlas-macOS \
-  -destination 'platform=macOS' -derivedDataPath build/mac test
+python3 Scripts/build_isolation.py exec --lane mac-tests -- \
+  xcodebuild -project WordAtlas.xcodeproj -scheme WordAtlas-macOS \
+  -destination 'platform=macOS' test
 
-xcodebuild -project WordAtlas.xcodeproj -scheme WordAtlas-iOS \
-  -destination 'generic/platform=iOS Simulator' -derivedDataPath build/ios build
+python3 Scripts/build_isolation.py exec --lane ios -- \
+  xcodebuild -project WordAtlas.xcodeproj -scheme WordAtlas-iOS \
+  -destination 'generic/platform=iOS Simulator' build
 
 # 用 simctl list devices available 中的设备 UUID 替换 SIMULATOR_UUID。
-xcodebuild -project WordAtlas.xcodeproj -scheme WordAtlas-iOS \
-  -destination 'platform=iOS Simulator,id=SIMULATOR_UUID' \
-  -derivedDataPath build/ios test
+python3 Scripts/build_isolation.py exec --lane ios-tests -- \
+  xcodebuild -project WordAtlas.xcodeproj -scheme WordAtlas-iOS \
+  -destination 'platform=iOS Simulator,id=SIMULATOR_UUID' test
 
 # UI 测试使用独立的内存数据，不修改用户学习记录。
-xcodebuild -project WordAtlas.xcodeproj -scheme WordAtlas-UI-Tests \
+python3 Scripts/build_isolation.py exec --lane ui -- \
+  xcodebuild -project WordAtlas.xcodeproj -scheme WordAtlas-UI-Tests \
   -destination 'platform=iOS Simulator,id=SIMULATOR_UUID' \
-  -derivedDataPath build/ui -resultBundlePath TestResults/UI.xcresult test
+  -resultBundlePath .build/artifacts.noindex/UI.xcresult test
 ```
+
+构建与测试产物统一放在 `.build/artifacts.noindex/`，命令结束后按项目注销临时 App 的 LaunchServices 记录。Xcode 共享 scheme 同样包含结束清理动作。正式安装请从 `dist/` 的 DMG 拖入 `/Applications`，测试 `.app` 不作为分发产物。
+
+通用脚本可复制到其他 macOS 项目；[使用与已有重复结果清理](Documentation/BUILD_ISOLATION.md)。
 
 工程包含两套原生 App target、对应宿主单元测试 target、独立 iOS UI 测试 target，以及 `Debug`、`Release`、`CloudDebug`、`CloudRelease` 四个配置。共享 scheme 为 `WordAtlas-iOS`、`WordAtlas-macOS`、对应的 `-Cloud` scheme 和 `WordAtlas-UI-Tests`。UI 测试结果保留今日、搜索、详情与学习页面截图。
 

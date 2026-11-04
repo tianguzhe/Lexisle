@@ -6,8 +6,35 @@
             <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="9ADB2961068FE7D7B76D50CA" BuildableName="Lexisle.app" BlueprintName="WordAtlas-macOS" ReferencedContainer="container:WordAtlas.xcodeproj" />
          </BuildActionEntry>
       </BuildActionEntries>
+      <PreActions>
+         <ExecutionAction ActionType="Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent title="Isolate development app artifacts" scriptText="/usr/bin/python3 &quot;$SRCROOT/Scripts/build_isolation.py&quot; prepare --root &quot;$SRCROOT&quot;&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="9ADB2961068FE7D7B76D50CA" BuildableName="Lexisle.app" BlueprintName="WordAtlas-macOS" ReferencedContainer="container:WordAtlas.xcodeproj" />
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PreActions>
+      <PostActions>
+         <ExecutionAction ActionType="Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent title="Isolate development app artifacts" scriptText="/usr/bin/python3 &quot;$SRCROOT/Scripts/build_isolation.py&quot; cleanup --root &quot;$SRCROOT&quot;&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="9ADB2961068FE7D7B76D50CA" BuildableName="Lexisle.app" BlueprintName="WordAtlas-macOS" ReferencedContainer="container:WordAtlas.xcodeproj" />
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PostActions>
    </BuildAction>
    <TestAction buildConfiguration="CloudDebug" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.IDEFoundation.Launcher.LLDB" shouldUseLaunchSchemeArgsEnv="YES" codeCoverageEnabled="YES">
+      <PostActions>
+         <ExecutionAction ActionType="Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent title="Isolate development app artifacts" scriptText="/usr/bin/python3 &quot;$SRCROOT/Scripts/build_isolation.py&quot; cleanup --root &quot;$SRCROOT&quot;&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="9ADB2961068FE7D7B76D50CA" BuildableName="Lexisle.app" BlueprintName="WordAtlas-macOS" ReferencedContainer="container:WordAtlas.xcodeproj" />
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PostActions>
       <Testables>
          <TestableReference skipped="NO" parallelizable="NO">
             <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="16FF9F8ADD2D2CA6F51FA7AD" BuildableName="WordAtlasTests-macOS.xctest" BlueprintName="WordAtlasTests-macOS" ReferencedContainer="container:WordAtlas.xcodeproj" />
@@ -18,12 +45,40 @@
       <BuildableProductRunnable runnableDebuggingMode="0">
          <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="9ADB2961068FE7D7B76D50CA" BuildableName="Lexisle.app" BlueprintName="WordAtlas-macOS" ReferencedContainer="container:WordAtlas.xcodeproj" />
       </BuildableProductRunnable>
+      <PostActions>
+         <ExecutionAction ActionType="Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent title="Isolate development app artifacts" scriptText="/usr/bin/python3 &quot;$SRCROOT/Scripts/build_isolation.py&quot; cleanup --root &quot;$SRCROOT&quot;&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="9ADB2961068FE7D7B76D50CA" BuildableName="Lexisle.app" BlueprintName="WordAtlas-macOS" ReferencedContainer="container:WordAtlas.xcodeproj" />
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PostActions>
    </LaunchAction>
    <ProfileAction buildConfiguration="CloudRelease" shouldUseLaunchSchemeArgsEnv="YES" savedToolIdentifier="" useCustomWorkingDirectory="NO" debugDocumentVersioning="YES">
       <BuildableProductRunnable runnableDebuggingMode="0">
          <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="9ADB2961068FE7D7B76D50CA" BuildableName="Lexisle.app" BlueprintName="WordAtlas-macOS" ReferencedContainer="container:WordAtlas.xcodeproj" />
       </BuildableProductRunnable>
+      <PostActions>
+         <ExecutionAction ActionType="Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent title="Isolate development app artifacts" scriptText="/usr/bin/python3 &quot;$SRCROOT/Scripts/build_isolation.py&quot; cleanup --root &quot;$SRCROOT&quot;&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="9ADB2961068FE7D7B76D50CA" BuildableName="Lexisle.app" BlueprintName="WordAtlas-macOS" ReferencedContainer="container:WordAtlas.xcodeproj" />
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PostActions>
    </ProfileAction>
    <AnalyzeAction buildConfiguration="CloudDebug" />
-   <ArchiveAction buildConfiguration="CloudRelease" revealArchiveInOrganizer="YES" />
+   <ArchiveAction buildConfiguration="CloudRelease" revealArchiveInOrganizer="YES">
+      <PostActions>
+         <ExecutionAction ActionType="Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent title="Isolate development app artifacts" scriptText="/usr/bin/python3 &quot;$SRCROOT/Scripts/build_isolation.py&quot; cleanup --root &quot;$SRCROOT&quot;&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="9ADB2961068FE7D7B76D50CA" BuildableName="Lexisle.app" BlueprintName="WordAtlas-macOS" ReferencedContainer="container:WordAtlas.xcodeproj" />
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PostActions>
+   </ArchiveAction>
 </Scheme>

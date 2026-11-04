@@ -3,7 +3,7 @@
 set -euo pipefail
 
 PACKAGE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PACKAGE_WORK="$PACKAGE_ROOT/.build/package"
+PACKAGE_WORK="$PACKAGE_ROOT/.build/artifacts.noindex/package"
 PACKAGE_OUTPUT="$PACKAGE_ROOT/dist"
 PACKAGE_TARGET="all"
 PACKAGE_VERSION=""
@@ -22,7 +22,7 @@ Usage: bash Scripts/package.sh [all|dmg|ipa] [options]
   --version X.Y.Z     Override the app marketing version for this build.
   --build-number N   Override CFBundleVersion with a positive integer.
   --output-dir PATH  Artifact directory (default: <project>/dist).
-  --skip-build       Repackage the last build under .build/package.
+  --skip-build       Repackage the last build under .build/artifacts.noindex/package.
   -h, --help         Show this help.
 
 Requires macOS and Xcode 26+ with the matching device SDKs.
@@ -68,6 +68,8 @@ choose_python() {
     fail "Install Python 3.$minimum+ or set PYTHON_BIN."
 }
 choose_python
+PACKAGE_ISOLATION="$PACKAGE_ROOT/Scripts/build_isolation.py"
+"$PACKAGE_PYTHON" "$PACKAGE_ISOLATION" prepare --root "$PACKAGE_ROOT" >/dev/null
 
 PACKAGE_OUTPUT="$("$PACKAGE_PYTHON" -c 'import pathlib,sys; print(pathlib.Path(sys.argv[1]).expanduser().resolve())' "$PACKAGE_OUTPUT")"
 PACKAGE_APP_NAME="$(sed -n 's/^APP_ENGLISH_NAME[[:space:]]*=[[:space:]]*//p' "$PACKAGE_ROOT/Config/Brand.xcconfig")"
@@ -86,10 +88,16 @@ mkdir -p "$PACKAGE_WORK/logs" "$PACKAGE_OUTPUT"
 PACKAGE_STAGE="$(mktemp -d "$PACKAGE_WORK/stage.XXXXXX")"
 cleanup() {
     local code=$?
+    trap - EXIT
+    if ! "$PACKAGE_PYTHON" "$PACKAGE_ISOLATION" cleanup --root "$PACKAGE_ROOT"; then
+        printf '[Lexisle] Could not clean development app registrations.\n' >&2
+        [[ "$code" -ne 0 ]] || code=1
+    fi
     if [[ -n "$PACKAGE_STAGE" && -d "$PACKAGE_STAGE" ]]; then
         rm -rf -- "$PACKAGE_STAGE"
     fi
     if [[ "$code" -ne 0 ]]; then printf '[Lexisle] Packaging failed. Build logs: %s/logs\n' "$PACKAGE_WORK" >&2; fi
+    exit "$code"
 }
 trap cleanup EXIT
 
@@ -114,7 +122,7 @@ fi
 build_with_log() {
     local log="$1"
     shift
-    if ! "$@" > "$log" 2>&1; then
+    if ! "$PACKAGE_PYTHON" "$PACKAGE_ISOLATION" exec --root "$PACKAGE_ROOT" -- "$@" > "$log" 2>&1; then
         tail -n 80 "$log" >&2
         fail "xcodebuild failed. Full log: $log"
     fi

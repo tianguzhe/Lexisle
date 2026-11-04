@@ -9,6 +9,7 @@ import json
 import re
 import copy
 import xml.etree.ElementTree as ET
+from build_isolation import BuildArea
 
 ROOT = Path(__file__).resolve().parents[1]
 brand_configuration = (ROOT / "Config/Brand.xcconfig").read_text()
@@ -198,6 +199,14 @@ scheme_dir = PROJECT / "xcshareddata/xcschemes"
 scheme_dir.mkdir(parents=True, exist_ok=True)
 def buildable(parent, target_name, target_id, product_name):
     ET.SubElement(parent, "BuildableReference", BuildableIdentifier="primary", BlueprintIdentifier=target_id, BuildableName=product_name, BlueprintName=target_name, ReferencedContainer="container:WordAtlas.xcodeproj")
+def isolate_action(action, phase, operation, target_name, target_id):
+    actions = ET.SubElement(action, phase)
+    execution = ET.SubElement(actions, "ExecutionAction", ActionType="Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction")
+    content = ET.SubElement(execution, "ActionContent", title="Isolate development app artifacts",
+                            scriptText='/usr/bin/python3 "$SRCROOT/Scripts/build_isolation.py" ' + operation + ' --root "$SRCROOT"\n')
+    environment = ET.SubElement(content, "EnvironmentBuildable")
+    buildable(environment, target_name, target_id, APP_BUNDLE_NAME)
+
 for target_name, target_id, test_name, test_id in scheme_details:
     for cloud in [False, True]:
         config = "CloudDebug" if cloud else "Debug"
@@ -207,6 +216,9 @@ for target_name, target_id, test_name, test_id in scheme_details:
         entry = ET.SubElement(entries, "BuildActionEntry", buildForTesting="YES", buildForRunning="YES", buildForProfiling="YES", buildForArchiving="YES", buildForAnalyzing="YES")
         buildable(entry, target_name, target_id, APP_BUNDLE_NAME)
         tests = ET.SubElement(scheme, "TestAction", buildConfiguration=config, selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB", selectedLauncherIdentifier="Xcode.IDEFoundation.Launcher.LLDB", shouldUseLaunchSchemeArgsEnv="YES", codeCoverageEnabled="YES")
+        isolate_action(build, "PreActions", "prepare", target_name, target_id)
+        isolate_action(build, "PostActions", "cleanup", target_name, target_id)
+        isolate_action(tests, "PostActions", "cleanup", target_name, target_id)
         testables = ET.SubElement(tests, "Testables")
         testable = ET.SubElement(testables, "TestableReference", skipped="NO", parallelizable="NO")
         buildable(testable, test_name, test_id, test_name + ".xctest")
@@ -216,8 +228,11 @@ for target_name, target_id, test_name, test_id in scheme_details:
         profile = ET.SubElement(scheme, "ProfileAction", buildConfiguration="CloudRelease" if cloud else "Release", shouldUseLaunchSchemeArgsEnv="YES", savedToolIdentifier="", useCustomWorkingDirectory="NO", debugDocumentVersioning="YES")
         runnable = ET.SubElement(profile, "BuildableProductRunnable", runnableDebuggingMode="0")
         buildable(runnable, target_name, target_id, APP_BUNDLE_NAME)
+        isolate_action(launch, "PostActions", "cleanup", target_name, target_id)
+        isolate_action(profile, "PostActions", "cleanup", target_name, target_id)
         ET.SubElement(scheme, "AnalyzeAction", buildConfiguration=config)
-        ET.SubElement(scheme, "ArchiveAction", buildConfiguration="CloudRelease" if cloud else "Release", revealArchiveInOrganizer="YES")
+        archive = ET.SubElement(scheme, "ArchiveAction", buildConfiguration="CloudRelease" if cloud else "Release", revealArchiveInOrganizer="YES")
+        isolate_action(archive, "PostActions", "cleanup", target_name, target_id)
         ET.indent(scheme, space="   ")
         ET.ElementTree(scheme).write(scheme_dir / (target_name + ("-Cloud" if cloud else "") + ".xcscheme"), encoding="UTF-8", xml_declaration=True)
         if target_name == "WordAtlas-iOS" and not cloud:
@@ -228,4 +243,5 @@ for target_name, target_id, test_name, test_id in scheme_details:
             buildable(testable, ui_name, ui_id, ui_name + ".xctest")
             ET.indent(ui_scheme, space="   ")
             ET.ElementTree(ui_scheme).write(scheme_dir / "WordAtlas-UI-Tests.xcscheme", encoding="UTF-8", xml_declaration=True)
+BuildArea(ROOT).prepare()
 print("Generated WordAtlas.xcodeproj:", len(sources), "app sources,", len(test_sources), "test sources; iOS and native macOS.")

@@ -36,7 +36,7 @@ dist/
   Lexisle-1.0.1-iOS-unsigned.ipa.sha256
 ```
 
-`dist/` 和中间产物均被 Git 忽略。构建日志在 `.build/package/logs/`，原始 Mac App 和 iOS archive 分别在 `.build/package/macos/`、`.build/package/ios/`。`--skip-build` 会核对指定版本；同时打包两个平台时，还要求缓存的版本号和构建号一致。
+`dist/` 只存分发文件；正式 App 从 DMG 安装到 `/Applications`。中间 `.app`、测试包和缓存统一收在 `.build/artifacts.noindex/`，命令结束后按项目清理应用注册。`dist/` 和中间产物均被 Git 忽略。构建日志在 `.build/artifacts.noindex/package/logs/`，原始 Mac App 和 iOS archive 分别在 `.build/artifacts.noindex/package/macos/`、`.build/artifacts.noindex/package/ios/`。`--skip-build` 会核对指定版本；同时打包两个平台时，还要求缓存的版本号和构建号一致。
 
 ## 两种包的区别
 
@@ -94,3 +94,5 @@ git push origin v1.2.3
 | `scripts/release.sh` / `release.yml` | `v*` 标签触发 Mac DMG 发布 | 扩展为手动/标签触发、两平台矩阵构建、artifact 下载及双包 Release |
 
 QuietLock 只有 Mac 打包流程。Lexisle 额外实现了 iOS 真机归档、签名移除和 IPA 内容校验；安装背景使用词屿自己的标识与配色。
+
+通用隔离和旧测试副本清理见 [BUILD_ISOLATION.md](BUILD_ISOLATION.md)。从旧版 `.build/package/` 路径升级后，先完整构建一次，再使用 `--skip-build`；旧缓存保留，不自动移动或删除。
